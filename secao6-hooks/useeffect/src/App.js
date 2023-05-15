@@ -10,8 +10,17 @@ function App() {
   const [input, setInput] = useState('');
 
   useEffect(() => {
-    localStorage.setItem('tarefas', )
-  }, [tarefas])
+    const tarefasStoge = localStorage.getItem('tarefas')
+
+    if(tarefasStoge){
+      setTarefas(JSON.parse(tarefasStoge))
+    }
+;
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('tarefas', JSON.stringify(tarefas));
+  }, [tarefas]);
 
   function handleAdd(){
     setTarefas([...tarefas, input])
