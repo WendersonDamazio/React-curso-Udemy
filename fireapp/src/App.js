@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { db } from './firebaseconection'
-import { doc, setDoc } from 'firebase/firestore' 
+import { doc, setDoc, collection, addDoc, getDoc } from 'firebase/firestore' 
 
 import './app.css'
 
@@ -9,15 +9,42 @@ function App() {
   const [autor, setAutor] = useState('');
 
   async function handleAdd(){
-    await setDoc(doc(db, "posts", "12345"), {
+    // await setDoc(doc(db, "posts", "12345"), {
+      // titulo: titulo,
+      // autor: autor,
+    // })
+    // .then(() => {
+      // console.log('Dados registrado no banco')
+    // })
+    // .catch((error) => {
+      // console.log('GEROU ERRO' + error)
+    // })
+    await addDoc(collection(db, "posts"), {
       titulo: titulo,
       autor: autor,
     })
     .then(() => {
-      console.log('Dados registrado no banco')
+      console.log("CADASTRADO COM SUCESSO")
+      setAutor('');
+      setTitulo('')
     })
     .catch((error) => {
-      console.log('GEROU ERRO' + error)
+      console.log("ERROR " + error)
+    })
+
+  }
+
+  async function buscarPost(){
+    const postRef = doc(db, "posts", "Magi8eujRKU9AAVVyiJp")
+
+    await getDoc(postRef)
+    .then((snapshat) => {
+      setAutor(snapshat.data().autor)
+      setTitulo(snapshat.data().titulo)
+
+    })
+    .catch(() => {
+      console.log("Ero ao buscar")
     })
   }
 
@@ -43,6 +70,7 @@ function App() {
         />
 
         <button onClick={handleAdd}>Cadastrar</button>
+        <button onClick={buscarPost}>Buscar post</button>
       </div>
     </div>
   );
