@@ -1,6 +1,19 @@
-import { useState } from 'react'
-import { db } from './firebaseconection'
-import { doc, setDoc, collection, addDoc, getDoc, getDocs, updateDoc } from 'firebase/firestore'
+import { useState, useEffect } from 'react'
+import { db, auth } from './firebaseconection'
+import {
+  doc,
+  setDoc,
+  collection,
+  addDoc,
+  getDoc,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  onSnapshot
+} from 'firebase/firestore'
+import {
+  createUserWithEmailAndPassword
+} from "firebase/auth"
 
 import './app.css'
 
@@ -9,7 +22,29 @@ function App() {
   const [autor, setAutor] = useState('');
   const [idPost, setIdPost] = useState('');
 
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+
   const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    async function loadPosts() {
+      const unsob = onSnapshot(collection(db, "posts"), (snapshat) => {
+        let listaPost = [];
+
+        snapshat.forEach((doc) => {
+          listaPost.push({
+            id: doc.id,
+            titulo: doc.data().titulo,
+            autor: doc.data().autor,
+          })
+        })
+
+        setPosts(listaPost);
+      })
+    }
+    loadPosts();
+  }, [])
 
   async function handleAdd() {
     // await setDoc(doc(db, "posts", "12345"), {
@@ -72,20 +107,46 @@ function App() {
 
   }
 
-  async function editarPost(){
+  async function editarPost() {
     const docRef = doc(db, "posts", idPost)
     await updateDoc(docRef, {
       titulo: titulo,
       autor: autor,
     })
+      .then(() => {
+        console.log("POST ATUALIZADO")
+        setPosts('')
+        setTitulo('')
+        setAutor('')
+      })
+      .catch((error) => {
+        console.log("ERRO AO ATUALIZAR")
+      })
+  }
+
+  async function excluirPost(id) {
+    const docRef = doc(db, "posts", id)
+    await deleteDoc(docRef)
+      .then(() => {
+        alert("DELETADO COM SUCESSO")
+      })
+  }
+
+  async function novoUsuario(){
+    await createUserWithEmailAndPassword(auth, email, senha)
     .then(() => {
-      console.log("POST ATUALIZADO")
-      setPosts('')
-      setTitulo('')
-      setAutor('')
+      	console.log("CADASTRAdo COM SUCESSO")
+        setEmail('')
+        setSenha('')
     })
-    .catch((error) =>{
-      console.log("ERRO AO ATUALIZAR")
+    .catch((error) => {
+
+      if(error.code === 'auth/weak-password'){
+        alert("Senha muito fraca")
+      }else if(error.code === 'auth/email-already-in-use'){
+        alert("email já exite")
+      }
+      
     })
   }
 
@@ -94,7 +155,26 @@ function App() {
       <h1>ReactJS + FireBase :(</h1>
 
       <div className='container'>
+        <h2>Usuarios</h2>
+        <label>Email</label>
+        <input
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder='Digite seu email'
+        /> <br />
+        <label>Senha</label>
+        <input
+          value={senha}
+          onChange={(e) => setSenha(e.target.value)}
+          placeholder='Digite senha'
+        /><br />
+        <button onClick={novoUsuario}>Cadastrar</button>
+      </div>
+      
+      <hr/>
 
+      <div className='container'>
+        <h2>POSTS</h2>
         <label>ID do Post: </label>
         <input
           placeholder='Digite o ID do post'
@@ -107,7 +187,7 @@ function App() {
           placeholder='Digite o titulo'
           type='text'
           value={titulo}
-          onChange={ (e) => setTitulo(e.target.value) }
+          onChange={(e) => setTitulo(e.target.value)}
         />
 
         <label>Autor:</label>
@@ -115,20 +195,21 @@ function App() {
           placeholder='autor do post'
           value={autor}
           onChange={(e) => setAutor(e.target.value)}
-        /><br/>
+        /><br />
 
         <button onClick={handleAdd}>Cadastrar</button>
-        <button onClick={buscarPost}>Buscar post</button> <br/>
+        <button onClick={buscarPost}>Buscar post</button> <br />
 
         <button onClick={editarPost}>Atualizar post</button>
 
         <ul>
           {posts.map((post) => {
-            return(
+            return (
               <li key={post.id}>
-                <strong>ID: {post.id}</strong> <br/>
-                <span>Titulo: {post.titulo}</span> <br/>
-                <span>Autor: {post.autor}</span><br/> <br></br>
+                <strong>ID: {post.id}</strong> <br />
+                <span>Titulo: {post.titulo}</span> <br />
+                <span>Autor: {post.autor}</span><br />
+                <button onClick={() => excluirPost(post.id)}>Excluir</button> <br /><br />
               </li>
             )
           })}
