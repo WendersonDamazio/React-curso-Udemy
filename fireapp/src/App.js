@@ -12,7 +12,10 @@ import {
   onSnapshot
 } from 'firebase/firestore'
 import {
-  createUserWithEmailAndPassword
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
 } from "firebase/auth"
 
 import './app.css'
@@ -24,6 +27,9 @@ function App() {
 
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+
+  const [user, setUser] = useState(false);
+  const [userDatail, setUserDatail] = useState('');
 
   const [posts, setPosts] = useState([]);
 
@@ -44,6 +50,25 @@ function App() {
       })
     }
     loadPosts();
+  }, [])
+
+  useEffect(() => {
+    async function checkLoging(){
+        onAuthStateChanged(auth, (user) => {
+          if(user){
+            console.log(user)
+            setUser(true)
+            setUserDatail({
+              uid: user.uid,
+              email: user.email
+            })
+          }else{
+            setUser(false)
+            setUserDatail([])
+          }
+        })
+    }
+    checkLoging();
   }, [])
 
   async function handleAdd() {
@@ -146,13 +171,47 @@ function App() {
       }else if(error.code === 'auth/email-already-in-use'){
         alert("email já exite")
       }
-      
     })
+  }
+
+  async function logarUsuario(){
+    await signInWithEmailAndPassword(auth, email, senha)
+    .then((value) => {
+      console.log("User logado com sucesso")
+      console.log(value.user)
+
+      setUserDatail({
+        uid: value.user.uid,
+        email: value.user.email
+      })
+      setUser(true);
+      
+      setEmail('')
+      setSenha('')
+    })
+    .catch(() => {
+      console.log("ERRO AO FAZER O LOGIN")
+    })
+  }
+
+  async function fazerLogout(){
+    await signOut(auth)
+    setUser(false);
+    setUserDatail([])
   }
 
   return (
     <div>
-      <h1>ReactJS + FireBase :(</h1>
+      <h1>ReactJS + FireBase :</h1>
+
+      { user && (
+        <div>
+          <strong>Seja bem vindo(a) (VOCE ESTA LOGADO)</strong> <br/>
+          <span>ID: {userDatail.uid} - Email: {userDatail.email}</span>
+          <button onClick={fazerLogout}>Sai da conta</button>
+          <br/> <br/>
+        </div>
+      )}
 
       <div className='container'>
         <h2>Usuarios</h2>
@@ -169,6 +228,7 @@ function App() {
           placeholder='Digite senha'
         /><br />
         <button onClick={novoUsuario}>Cadastrar</button>
+        <button onClick={logarUsuario}>Fazer Login</button>
       </div>
       
       <hr/>
