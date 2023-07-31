@@ -46,4 +46,12 @@
     border: 0;
     height: 90px;
     resize: none;
+    border-radius: 7px;
+}
+
+.button-link{
+    color: #b4b8bb;
+    text-decoration: none;
+    margin: 14px 0;
+    font-size: 14px;
 }
