@@ -4,14 +4,17 @@ import './home.css'
 
 import { Link } from 'react-router-dom';
 
+import { auth } from '../../firebaseconection';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+
 export default function Home(){
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  function handleLogin(e){
+  async function handleLogin(e){
     e.preventDefault();
     if(email !== '' && password !== ''){
-      alert("Teste")
+      await signInWithEmailAndPassword(auth, email, password)
     }else{
       alert("Preencha todos os campos")
     }
