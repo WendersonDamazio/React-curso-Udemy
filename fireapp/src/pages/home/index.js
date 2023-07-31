@@ -2,16 +2,27 @@
 import { useState } from 'react';
 import './home.css'
 
+import { Link } from 'react-router-dom';
+
 export default function Home(){
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  function handleLogin(e){
+    e.preventDefault();
+    if(email !== '' && password !== ''){
+      alert("Teste")
+    }else{
+      alert("Preencha todos os campos")
+    }
+  }
 
     return(
       <div className='home-container'> 
         <h1>Lista de tarefas</h1>
         <span>Gerencie sua agenda de forma fácil</span>
 
-        <form className='form'>
+        <form className='form' onSubmit={handleLogin}>
           <input 
             type='text'
             placeholder='digite seu email...'
@@ -19,7 +30,7 @@ export default function Home(){
             onChange={(e) => setEmail(e.target.value) }
           />
           <input
-            autoComplete={false} 
+            autoComplete="off" 
             type='password'
             placeholder='********'
             value={password}
@@ -27,6 +38,10 @@ export default function Home(){
           />
           <button type='submit'>Acessar</button>
         </form>
+
+        <Link className='button-link' to="/register">
+          Não Possui uma conta? Cadastre-se
+        </Link>
       </div>
     )
   }
