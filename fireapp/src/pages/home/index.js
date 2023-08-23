@@ -13,7 +13,7 @@ export default function Home(){
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const navigate =useNavigate();
+  const navigate = useNavigate();
 
   async function handleLogin(e){
     e.preventDefault();

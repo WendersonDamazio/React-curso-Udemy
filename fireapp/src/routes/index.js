@@ -4,12 +4,15 @@ import Home from '../pages/home';
 import Register from '../pages/Register'
 import Admin from '../pages/Admin'
 
+import Private from './Private';
+
 function RoutesApp() {
     return (
         <Routes>
             <Route path='/' element={<Home />} />
             <Route path='/register' element={<Register />} />
-            <Route path='/Admin' element={<Admin />} />
+
+            <Route path='/Admin' element={<Private> <Admin/> </Private>} />
         </Routes>
     )
 }
