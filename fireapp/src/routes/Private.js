@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { auth } from '../firebaseconection';
 import { onAuthStateChanged } from 'firebase/auth'
 
+import { Navigate } from 'react-router-dom'
+
 export default function Private({ childrem }) {
     const [loading, setLoading] = useState(true);
     const [signed, setSigned] = useState(false);
@@ -32,6 +34,16 @@ export default function Private({ childrem }) {
 
         checkLogin();
     }, [])
+
+    if(loading){
+        return(
+            <div></div>
+        )
+    }
+
+    if(signed){
+        return <Navigate to="/"/>
+    }
 
     return childrem;
 }
